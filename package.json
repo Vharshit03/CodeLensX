@@ -1,0 +1,74 @@
+{
+  "name": "codelensx",
+  "displayName": "CodeLensX",
+  "description": "AI-powered code review and optimization",
+  "version": "0.0.1",
+  "engines": {
+    "vscode": "^1.107.0"
+  },
+  "categories": [
+    "Other"
+  ],
+  "activationEvents": [
+    "onStartupFinished"
+  ],
+  "main": "./src/extension.js",
+  "contributes": {
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "codelensx",
+          "title": "codelensx",
+          "icon": "resources/icon4.svg"
+        }
+      ]
+    },
+    "views": {
+      "codelensx": [
+        {
+          "type": "webview",
+          "id": "codelensx.settingsView",
+          "name": "Settings",
+          "icon": "resources/icon4.svg",
+          "contextualTitle": "codelensx Settings"
+        }
+      ]
+    },
+    "commands": [
+      {
+        "command": "codelensx.reviewWorkspace",
+        "title": "Review Workspace"
+      },
+      {
+        "command": "codelensx.reviewFile",
+        "title": "Review Current File"
+      },
+      {
+        "command": "codelensx.showReport",
+         "title": "codelensx: Open Saved Report"
+      },
+      {
+        "command": "codelensx.openSettings",
+        "title": "Open Settings",
+        "category": "codelensx"
+      }
+    ]
+  },
+  "scripts": {
+    "lint": "eslint .",
+    "pretest": "npm run lint",
+    "test": "vscode-test"
+  },
+  "devDependencies": {
+    "@types/mocha": "^10.0.10",
+    "@types/node": "22.x",
+    "@types/vscode": "^1.107.0",
+    "@vscode/test-cli": "^0.0.12",
+    "@vscode/test-electron": "^2.5.2",
+    "eslint": "^9.39.1"
+  },
+  "dependencies": {
+    "@google/genai": "^1.34.0",
+    "dotenv": "^17.2.3"
+  }
+}

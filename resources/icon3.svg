@@ -1,0 +1,35 @@
+<svg width="128" height="128" viewBox="0 0 128 128" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background Gradient (Classic VS Code Blue Tones) -->
+  <defs>
+    <linearGradient id="bg_grad" x1="0" y1="0" x2="128" y2="128" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#1E1E1E"/>
+      <stop offset="1" stop-color="#0F0F0F"/>
+    </linearGradient>
+    <linearGradient id="accent_grad" x1="20" y1="20" x2="108" y2="108" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#007ACC"/>
+      <stop offset="1" stop-color="#00D1FF"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Rounded Background Square -->
+  <rect width="128" height="128" rx="24" fill="url(#bg_grad)"/>
+
+  <!-- The Lens Frame -->
+  <circle cx="64" cy="64" r="42" stroke="url(#accent_grad)" stroke-width="6" fill="none" opacity="0.9"/>
+  
+  <!-- Code Brackets { } -->
+  <path d="M48 48C44 48 42 50 42 54V60C42 63 40 64 38 64C40 64 42 65 42 68V74C42 78 44 80 48 80" 
+        stroke="white" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
+        
+  <path d="M80 48C84 48 86 50 86 54V60C86 63 88 64 90 64C88 64 86 65 86 68V74C86 78 84 80 80 80" 
+        stroke="white" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
+
+  <!-- The AI Spark / Lens Flare -->
+  <path d="M64 44V50M64 78V84M44 64H50M78 64H84" stroke="#00D1FF" stroke-width="4" stroke-linecap="round" opacity="0.6"/>
+  <circle cx="64" cy="64" r="3" fill="#00D1FF">
+    <animate attributeName="opacity" values="1;0.4;1" dur="3s" repeatCount="indefinite" />
+  </circle>
+  
+  <!-- Magnifying Glass Handle (Classic Look) -->
+  <rect x="92" y="92" width="8" height="24" rx="4" transform="rotate(-45 92 92)" fill="url(#accent_grad)"/>
+</svg>

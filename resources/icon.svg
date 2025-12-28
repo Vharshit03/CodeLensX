@@ -1,0 +1,67 @@
+<svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="brainGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#667eea;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#764ba2;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="codeGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#f093fb;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#f5576c;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  
+  <!-- Background circle -->
+  <circle cx="100" cy="100" r="95" fill="#1e1e2e" opacity="0.1"/>
+  
+  <!-- Code brackets -->
+  <path d="M 60 70 L 45 85 L 45 115 L 60 130" 
+        stroke="url(#codeGradient)" 
+        stroke-width="6" 
+        fill="none" 
+        stroke-linecap="round" 
+        stroke-linejoin="round"/>
+  
+  <path d="M 140 70 L 155 85 L 155 115 L 140 130" 
+        stroke="url(#codeGradient)" 
+        stroke-width="6" 
+        fill="none" 
+        stroke-linecap="round" 
+        stroke-linejoin="round"/>
+  
+  <!-- AI Brain/Neural network -->
+  <circle cx="100" cy="100" r="30" fill="url(#brainGradient)" opacity="0.3"/>
+  
+  <!-- Neural network nodes -->
+  <circle cx="85" cy="90" r="5" fill="url(#brainGradient)"/>
+  <circle cx="115" cy="90" r="5" fill="url(#brainGradient)"/>
+  <circle cx="100" cy="105" r="5" fill="url(#brainGradient)"/>
+  <circle cx="85" cy="115" r="4" fill="url(#brainGradient)" opacity="0.7"/>
+  <circle cx="115" cy="115" r="4" fill="url(#brainGradient)" opacity="0.7"/>
+  
+  <!-- Neural connections -->
+  <line x1="85" y1="90" x2="100" y2="105" stroke="url(#brainGradient)" stroke-width="2" opacity="0.6"/>
+  <line x1="115" y1="90" x2="100" y2="105" stroke="url(#brainGradient)" stroke-width="2" opacity="0.6"/>
+  <line x1="100" y1="105" x2="85" y2="115" stroke="url(#brainGradient)" stroke-width="2" opacity="0.6"/>
+  <line x1="100" y1="105" x2="115" y2="115" stroke="url(#brainGradient)" stroke-width="2" opacity="0.6"/>
+  
+  <!-- Checkmark for review -->
+  <path d="M 95 100 L 100 107 L 110 92" 
+        stroke="#4ade80" 
+        stroke-width="4" 
+        fill="none" 
+        stroke-linecap="round" 
+        stroke-linejoin="round"/>
+  
+  <!-- AI Sparkles -->
+  <path d="M 70 55 L 72 60 L 77 62 L 72 64 L 70 69 L 68 64 L 63 62 L 68 60 Z" 
+        fill="url(#brainGradient)" 
+        opacity="0.8"/>
+  
+  <path d="M 130 50 L 131.5 53 L 134.5 54.5 L 131.5 56 L 130 59 L 128.5 56 L 125.5 54.5 L 128.5 53 Z" 
+        fill="url(#codeGradient)" 
+        opacity="0.8"/>
+  
+  <path d="M 145 105 L 146.5 108 L 149.5 109.5 L 146.5 111 L 145 114 L 143.5 111 L 140.5 109.5 L 143.5 108 Z" 
+        fill="url(#brainGradient)" 
+        opacity="0.8"/>
+</svg>

@@ -1,0 +1,15 @@
+<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Outer Lens Ring (Thinner for small scale) -->
+  <circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.5"/>
+  
+  <!-- Simplified Brackets -->
+  <path d="M9 9C8 9 7.5 9.5 7.5 10.5V11.2C7.5 11.7 7.2 12 6.8 12C7.2 12 7.5 12.3 7.5 12.8V13.5C7.5 14.5 8 15 9 15" 
+        stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/>
+        
+  <path d="M15 9C16 9 16.5 9.5 16.5 10.5V11.2C16.5 11.7 16.8 12 17.2 12C16.8 12 16.5 12.3 16.5 12.8V13.5C16.5 14.5 16 15 15 15" 
+        stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/>
+
+  <!-- The AI Spark (Center point of focus) -->
+  <circle cx="12" cy="12" r="1" fill="currentColor"/>
+  <path d="M12 7V8M12 16V17M7 12H8M16 12H17" stroke="currentColor" stroke-width="1" stroke-linecap="round"/>
+</svg>
