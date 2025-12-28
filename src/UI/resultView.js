@@ -200,10 +200,6 @@ function getResultHtml(results){
             ` : ''}
 
             <div class="action-buttons">
-                <button class="btn" onclick="exportReport()">
-                    <span>💾</span>
-                    <span>Export Report</span>
-                </button>
                 <button class="btn" onclick="reviewAgain()">
                     <span>🔄</span>
                     <span>Review Again</span>

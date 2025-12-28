@@ -251,11 +251,8 @@ function getMainMenuView() {
 </head>
 <body>
     <div class="menu-container">
-        <h2>codelensx</h2>
-        <div class="bar">
+        <h2>AI CodeLensX</h2>
         <div class="status">✅ Configured</div>
-        <button class="stbar" onclick="showSettings()">⚙️</button>
-        </div>
         
 
         <button class="menu-button" onclick="reviewWorkspace()">
@@ -524,6 +521,228 @@ function getSummaryView(history) {
 </html>`;
 }
 
+function getProgressView(progress) {
+    const percentage = progress.percentage || 0;
+    const currentFile = progress.currentFile || 'Initializing...';
+    const filesProcessed = progress.filesProcessed || 0;
+    const totalFiles = progress.totalFiles || 0;
+    const security = progress.security || 0;
+    const bugs = progress.bugs || 0;
+    const quality = progress.quality || 0;
+    const status = progress.status || 'Starting...';
+    
+    return `<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        ${commonStyles}
+        .progress-container {
+            padding: 20px;
+        }
+        
+        .status-header {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        
+        .spinner {
+            display: inline-block;
+            width: 40px;
+            height: 40px;
+            border: 4px solid var(--vscode-button-background);
+            border-top: 4px solid transparent;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-bottom: 10px;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        .status-text {
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--vscode-textLink-foreground);
+        }
+        
+        .progress-bar-container {
+            background: var(--vscode-editor-background);
+            border-radius: 8px;
+            padding: 15px;
+            margin: 20px 0;
+            border: 1px solid var(--vscode-panel-border);
+        }
+        
+        .progress-label {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+            font-size: 13px;
+        }
+        
+        .progress-bar {
+            width: 100%;
+            height: 24px;
+            background: var(--vscode-input-background);
+            border-radius: 12px;
+            overflow: hidden;
+            position: relative;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, 
+                var(--vscode-button-background) 0%, 
+                var(--vscode-textLink-foreground) 100%);
+            transition: width 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--vscode-button-foreground);
+            font-size: 12px;
+            font-weight: 600;
+        }
+        
+        .current-file {
+            background: var(--vscode-textBlockQuote-background);
+            padding: 12px;
+            border-radius: 6px;
+            margin: 15px 0;
+            border-left: 3px solid var(--vscode-textLink-foreground);
+        }
+        
+        .file-label {
+            font-size: 11px;
+            opacity: 0.7;
+            margin-bottom: 5px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .file-name {
+            font-family: var(--vscode-editor-font-family);
+            font-size: 13px;
+            word-break: break-all;
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            margin: 20px 0;
+        }
+        
+        .stat-card {
+            background: var(--vscode-editor-background);
+            padding: 12px;
+            border-radius: 6px;
+            text-align: center;
+            border: 1px solid var(--vscode-panel-border);
+        }
+        
+        .stat-number {
+            font-size: 24px;
+            font-weight: bold;
+            display: block;
+            margin-bottom: 4px;
+        }
+        
+        .stat-label {
+            font-size: 11px;
+            opacity: 0.7;
+        }
+        
+        .cancel-button {
+            width: 100%;
+            background: rgba(239, 68, 68, 0.2);
+            color: #ef4444;
+            margin-top: 20px;
+        }
+        
+        .cancel-button:hover {
+            background: rgba(239, 68, 68, 0.3);
+        }
+        
+        .pulse {
+            animation: pulse 2s ease-in-out infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+    </style>
+</head>
+<body>
+    <div class="progress-container">
+        <div class="status-header">
+            <div class="spinner"></div>
+            <div class="status-text">🔄 Review in Progress</div>
+        </div>
+        
+        <div class="progress-bar-container">
+            <div class="progress-label">
+                <span>Progress</span>
+                <span>${percentage}%</span>
+            </div>
+            <div class="progress-bar">
+                <div class="progress-fill" style="width: ${percentage}%">
+                    ${percentage > 15 ? percentage + '%' : ''}
+                </div>
+            </div>
+        </div>
+        
+        <div class="current-file">
+            <div class="file-label">Currently Processing</div>
+            <div class="file-name pulse">${currentFile}</div>
+        </div>
+        
+        <div style="text-align: center; margin: 15px 0; font-size: 13px; opacity: 0.8;">
+            <strong>${filesProcessed}</strong> of <strong>${totalFiles}</strong> files processed
+        </div>
+        
+        <div class="stats-grid">
+            <div class="stat-card">
+                <span class="stat-number" style="color: #ef4444;">${security}</span>
+                <span class="stat-label">🔴 Security</span>
+            </div>
+            <div class="stat-card">
+                <span class="stat-number" style="color: #f59e0b;">${bugs}</span>
+                <span class="stat-label">🟠 Bugs</span>
+            </div>
+            <div class="stat-card">
+                <span class="stat-number" style="color: #10b981;">${quality}</span>
+                <span class="stat-label">🟡 Quality</span>
+            </div>
+        </div>
+        
+        <div style="background: var(--vscode-textBlockQuote-background); padding: 10px; border-radius: 4px; font-size: 12px; opacity: 0.8; text-align: center;">
+            ${status}
+        </div>
+        
+        <button class="cancel-button" onclick="cancelReview()">
+            ✖ Cancel Review
+        </button>
+    </div>
+
+    <script>
+        const vscode = acquireVsCodeApi();
+
+        function cancelReview() {
+
+            vscode.postMessage({
+                type: 'cancelReview'
+            });
+            
+        }
+    </script>
+</body>
+</html>`;
+}
+
 
 
 module.exports = {
@@ -531,4 +750,5 @@ module.exports = {
     getMainMenuView,
     getSettingsView,
     getSummaryView,
+    getProgressView
 };

@@ -17,40 +17,44 @@
     "viewsContainers": {
       "activitybar": [
         {
-          "id": "codelensx",
-          "title": "codelensx",
+          "id": "CodeLensX",
+          "title": "CodeLensX",
           "icon": "resources/icon4.svg"
         }
       ]
     },
     "views": {
-      "codelensx": [
+      "CodeLensX": [
         {
           "type": "webview",
-          "id": "codelensx.settingsView",
-          "name": "Settings",
+          "id": "CodeLensX.settingsView",
+          "name": "",
           "icon": "resources/icon4.svg",
-          "contextualTitle": "codelensx Settings"
+          "contextualTitle": "CodeLensX "
         }
       ]
     },
     "commands": [
       {
-        "command": "codelensx.reviewWorkspace",
+        "command": "CodeLensX.reviewWorkspace",
         "title": "Review Workspace"
       },
       {
-        "command": "codelensx.reviewFile",
+        "command": "CodeLensX.reviewFile",
         "title": "Review Current File"
       },
       {
-        "command": "codelensx.showReport",
-         "title": "codelensx: Open Saved Report"
+        "command": "CodeLensX.showReport",
+         "title": "CodeLensX: Open Saved Report"
       },
       {
-        "command": "codelensx.openSettings",
+        "command": "CodeLensX.cancelReview",
+         "title": "CodeLensX: Cancels Review"
+      },
+      {
+        "command": "CodeLensX.openSettings",
         "title": "Open Settings",
-        "category": "codelensx"
+        "category": "AI Code Reviewer"
       }
     ]
   },

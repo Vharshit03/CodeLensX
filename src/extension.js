@@ -2,15 +2,15 @@ const vscode = require('vscode');
 const SidebarProvider = require('./sidebarProvider');
 const AIService = require('./Services/AIservice');
 const { initialize: initializeTools } = require('./Services/tools');
-const {getResultHtml} = require('./UI/resultView');
-const path = require('path'); // Moved require('path') to the top
-
+const {getResultHtml} = require('./UI/resultView')
 
 let aiService;
 let outputChannel;
+let sidebarProvider;
+let currentCancellationToken = null;
 
 function activate(context) {
-    // console.log('AI Code Reviewer extension activated'); // Removed console.log
+    console.log('AI CodeLensX extension activated');
 
     // Create output channel for logs
     outputChannel = vscode.window.createOutputChannel('AI Code Reviewer');
@@ -22,11 +22,10 @@ function activate(context) {
     aiService = new AIService(context, outputChannel);
 
     // Register sidebar
-    //@ts-ignore- 
-    const sidebarProvider = new SidebarProvider(context, aiService);
+    sidebarProvider = new SidebarProvider(context, aiService);
     context.subscriptions.push(
         vscode.window.registerWebviewViewProvider(
-            'codelensx.settingsView',
+            'CodeLensX.settingsView',
             sidebarProvider
         )
     );
@@ -40,7 +39,7 @@ function activate(context) {
 function registerCommands(context) {
     // Review Workspace Command
     const reviewWorkspace = vscode.commands.registerCommand(
-        'codelensx.reviewWorkspace',
+        'CodeLensX.reviewWorkspace',
         async () => {
             const workspaceFolder = vscode.workspace.workspaceFolders?.[0];
             
@@ -55,7 +54,7 @@ function registerCommands(context) {
 
     // Review Current File Command
     const reviewFile = vscode.commands.registerCommand(
-        'codelensx.reviewFile',
+        'CodeLensX.reviewFile',
         async () => {
             const editor = vscode.window.activeTextEditor;
             
@@ -64,21 +63,39 @@ function registerCommands(context) {
                 return;
             }
 
-            const fileDir = path.dirname(editor.document.uri.fsPath);
+            const fileDir = require('path').dirname(editor.document.uri.fsPath);
             await runReviewWithProgress(fileDir);
         }
     );
 
     // Open Settings Command
     const openSettings = vscode.commands.registerCommand(
-        'codelensx.openSettings',
+        'CodeLensX.openSettings',
         () => {
-            vscode.commands.executeCommand('codelensx.settingsView.focus');
+            vscode.commands.executeCommand('CodeLensX.settingsView.focus');
+        }
+    );
+
+    // Cancel Review Command
+    const cancelReview = vscode.commands.registerCommand(
+        'CodeLensX.cancelReview',
+        () => {
+
+            if (aiService) {
+                aiService.cancel();
+            }
+
+            if (currentCancellationToken) {
+                currentCancellationToken.cancel();
+                currentCancellationToken = null;
+            }
+
+            outputChannel.appendLine('🛑 Cancel requested')
         }
     );
 
     const showReport = vscode.commands.registerCommand(
-        'codelensx.showReport', 
+        'CodeLensX.showReport', 
         (results) => {
             // Create and show your report panel here
             showResultsPanel(results);
@@ -88,8 +105,9 @@ function registerCommands(context) {
     context.subscriptions.push(
         reviewWorkspace,
         reviewFile,
+        openSettings,
         showReport,
-        openSettings
+        cancelReview
     );
 }
 
@@ -101,24 +119,54 @@ async function runReviewWithProgress(directory) {
     outputChannel.show(true);
     outputChannel.clear();
     
+    // Show progress in sidebar
+    if (sidebarProvider) {
+        sidebarProvider.showProgress();
+    }
+    
     return vscode.window.withProgress(
         {
             location: vscode.ProgressLocation.Notification,
-            title: "CodeLens Review",
+            title: "CodeLensX",
             cancellable: true
         },
         async (progress, token) => {
             try {
-                // Progress callback
-                const progressCallback = ({ message, increment }) => {
-                    progress.report({ message, increment });
+                // Store cancellation token
+                currentCancellationToken = token;
+                
+                // Listen for cancellation
+                token.onCancellationRequested(() => {
+                    outputChannel.appendLine('⚠️ Review cancelled by user');
+                    if (sidebarProvider) {
+                        sidebarProvider.hideProgress();
+                    }
+                });
+
+                // Progress callback that updates both notification and sidebar
+                const progressCallback = ({ message, increment, fileInfo }) => {
+                    progress.report({ 
+                        message, 
+                        increment 
+                    });
+                    
+                    // Update sidebar progress
+                    if (sidebarProvider && fileInfo) {
+                        sidebarProvider._updateProgress(fileInfo);
+                    }
                 };
 
                 // Run review
                 const results = await aiService.runReview(
                     directory,
-                    progressCallback
+                    progressCallback,
+                    token
                 );
+
+                // Hide progress view
+                if (sidebarProvider) {
+                    sidebarProvider.hideProgress();
+                }
 
                 // Save results to history
                 await saveReviewHistory(results);
@@ -136,11 +184,18 @@ async function runReviewWithProgress(directory) {
                 return results;
 
             } catch (error) {
+                // Hide progress view on error
+                if (sidebarProvider) {
+                    sidebarProvider.hideProgress();
+                }
+                
                 vscode.window.showErrorMessage(
                     `Review failed: ${error.message}`
                 );
                 outputChannel.appendLine(`\n❌ Error: ${error.message}`);
                 throw error;
+            } finally {
+                currentCancellationToken = null;
             }
         }
     );
@@ -181,7 +236,7 @@ function showResultsPanel(results) {
     const panel = vscode.window.createWebviewPanel(
         'aiReviewResults',
         'AI Review Results',
-        vscode.ViewColumn.Three,
+        vscode.ViewColumn.Beside,
         {
             enableScripts: true
         }
@@ -200,7 +255,7 @@ function showResultsPanel(results) {
                 break;
             case 'reviewAgain':
                 panel.dispose();
-                vscode.commands.executeCommand('codelensx.reviewWorkspace');
+                vscode.commands.executeCommand('CodeLensX.reviewWorkspace');
                 break;
         }
     });
@@ -211,8 +266,10 @@ function showResultsPanel(results) {
  */
 function getResultsHtml(results) {
     const totalIssues = results.security.length + results.bugs.length + results.quality.length;
+    const summaryText = results.summary || 'Review completed successfully';
     
-    return getResultHtml(results);
+    return getResultHtml(results)
+
 }
 
 /**
@@ -220,31 +277,9 @@ function getResultsHtml(results) {
  */
 async function openFileAtLine(filePath, lineNumber) {
     try {
-        // Convert relative path to absolute path
-        const workspaceFolders = vscode.workspace.workspaceFolders;
-        if (!workspaceFolders) {
-            vscode.window.showErrorMessage('No workspace folder open');
-            return;
-        }
-
-        // Handle both absolute and relative paths
-        let absolutePath = filePath;
-        if (!path.isAbsolute(filePath)) {
-            absolutePath = path.join(workspaceFolders[0].uri.fsPath, filePath);
-        }
-
-        const uri = vscode.Uri.file(absolutePath);
-        
-        // Check if file exists
-        try {
-            await vscode.workspace.fs.stat(uri);
-        } catch {
-            vscode.window.showErrorMessage(`File not found: ${filePath}`);
-            return;
-        }
-
+        const uri = vscode.Uri.file(filePath);
         const document = await vscode.workspace.openTextDocument(uri);
-        const editor = await vscode.window.showTextDocument(document, vscode.ViewColumn.One);
+        const editor = await vscode.window.showTextDocument(document);
         
         if (lineNumber > 0) {
             const position = new vscode.Position(lineNumber - 1, 0);
@@ -256,7 +291,6 @@ async function openFileAtLine(filePath, lineNumber) {
         }
     } catch (error) {
         vscode.window.showErrorMessage(`Could not open file: ${error.message}`);
-        console.error('Error opening file:', error);
     }
 }
 

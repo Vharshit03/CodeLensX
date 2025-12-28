@@ -7,6 +7,7 @@ class AIService {
         this.context = context;
         this.outputChannel = outputChannel;
         this.ai = null;
+        this.isCancelled = false;
     }
 
     async initialize() {
@@ -29,11 +30,13 @@ class AIService {
         }
     }
 
-    async runReview(directory, progressCallback) {
+    async runReview(directory, progressCallback,cancellationToken) {
         try {
             if (!this.ai) {
                 await this.initialize();
             }
+
+            this.isCancelled = false;
 
             this.log(`🔍 Reviewing: ${directory}\n`);
             
@@ -47,45 +50,84 @@ class AIService {
                 details: []
             };
 
-            await this.runAgent(directory, results, progressCallback);
+            await this.runAgent(directory, results, progressCallback,cancellationToken);
 
             return results;
 
         } catch (error) {
+            if (error.message === 'Review cancelled') {
+                this.log('⚠️ Review was cancelled by user');
+                throw error;
+            }
             this.log(`❌ Review failed: ${error.message}`);
             throw error;
         }
     }
 
-    async runAgent(directory, results, progressCallback) {
+    async runAgent(directory, results, progressCallback,cancellationToken) {
         const History = [{
             role: 'user',
             parts: [{ text: `Review and fix all code in: ${directory}` }]
         }];
 
         let iteration = 0;
-        const maxIterations = 30; // Reduced for speed
+        const maxIterations = 30;
+        let currentFile = 'Initializing...';
 
         while (iteration < maxIterations) {
             iteration++;
             
+            if (this.isCancelled) {
+                this.log('🛑 Review stopped - cancelled by user');
+                throw new Error('Review cancelled');
+            }
+            
+            // Check for cancellation from VS Code token
+            if (cancellationToken?.isCancellationRequested) {
+                this.log('🛑 Review stopped - cancelled by VS Code');
+                this.isCancelled = true;
+                throw new Error('Review cancelled');
+            }
+
+            // Calculate percentage
+            const percentage = Math.min(95, Math.round(20 + (iteration * 9)));
+            
             if (progressCallback) {
                 progressCallback({
                     message: `Processing... (${iteration}/${maxIterations})`,
-                    increment: 20 + (iteration / maxIterations * 60)
+                    increment: 20 + (iteration / maxIterations * 60),
+                    fileInfo: {
+                        percentage,
+                        currentFile,
+                        filesProcessed: results.filesFixed,
+                        totalFiles: results.totalFiles,
+                        security: results.security.length,
+                        bugs: results.bugs.length,
+                        quality: results.quality.length,
+                        status: `Iteration ${iteration}/${maxIterations}`
+                    }
                 });
             }
 
             try {
+                const toolDefs = getToolDefinitions();
+                
+                // Debug: Check tool definitions
+                if (!toolDefs || !Array.isArray(toolDefs) || toolDefs.length === 0) {
+                    throw new Error('Tool definitions are invalid or empty');
+                }
+                
+                this.log(`📋 Using ${toolDefs.length} tool definitions`);
+                
                 const result = await this.ai.models.generateContent({
-                    model: "gemini-2.0-flash-exp",
+                    model: "gemini-2.5-flash",
                     contents: History,
                     config: {
                         systemInstruction: this.getSystemPrompt(),
                         tools: [{
-                            functionDeclarations: getToolDefinitions()
+                            functionDeclarations: toolDefs
                         }],
-                        temperature: 0.1, // Lower for faster, more focused responses
+                        temperature: 0.1,
                     }
                 });
 
@@ -96,12 +138,20 @@ class AIService {
                         
                         this.log(`📌 ${name}`);
                         
+                        // Update current file being processed
+                        if (name === 'read_file' && args.file_path) {
+                            currentFile = args.file_path.split(/[/\\]/).pop();
+                        } else if (name === 'write_file' && args.file_path) {
+                            currentFile = args.file_path.split(/[/\\]/).pop();
+                        }
+                        
                         // Execute the tool
                         const toolResponse = await tools[name](args);
                         
                         // Track stats and collect issue details
                         if (name === 'list_files' && toolResponse.files) {
                             results.totalFiles = toolResponse.files.length;
+                            currentFile = `Found ${toolResponse.files.length} files`;
                         }
                         if (name === 'write_file' && toolResponse.success) {
                             results.filesFixed++;
@@ -133,7 +183,7 @@ class AIService {
                     // Final response - AI is done
                     const summaryText = result.text || '';
                     results.summary = summaryText;
-                    this.log('\n' + summaryText);
+                    //this.log('\n' + summaryText);
                     
                     // Parse the summary to extract any additional info
                     this.parseSummary(summaryText, results);

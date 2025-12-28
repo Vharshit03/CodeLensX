@@ -3,7 +3,8 @@ const {
     getSetupView,
     getMainMenuView,
     getSettingsView,
-    getSummaryView } = require('./UI/sidebarViews')
+    getSummaryView,
+    getProgressView } = require('./UI/sidebarViews')
 
 
 class SidebarProvider {
@@ -11,7 +12,17 @@ class SidebarProvider {
         this._context = context;
         this._aiService = aiService;
         this._view = undefined;
-        this.currentView = 'menu'; // 'setup', 'menu', 'settings', 'summary'
+        this.currentView = 'menu'; // 'setup', 'menu', 'settings', 'summary
+        this.progressData = {
+            percentage: 0,
+            currentFile: 'Initializing...',
+            filesProcessed: 0,
+            totalFiles: 0,
+            security: 0,
+            bugs: 0,
+            quality: 0,
+            status: 'Starting review...'
+        };
     }
 
     async resolveWebviewView(webviewView) {
@@ -50,6 +61,12 @@ class SidebarProvider {
                 case 'clearHistory':
                     await this._clearHistory();
                     break;
+                 case 'cancelReview':
+                    await this._cancelReview();
+                    break;
+                case 'updateProgress':
+                    await this._updateProgress(message.progress);
+                    break;
             }
         });
     }
@@ -79,6 +96,9 @@ class SidebarProvider {
                 break;
             case 'summary':
                 html = await this._getSummaryView();
+                break;
+            case 'progress':
+                html = await this._getProgressView();
                 break;
             default:
                 html = await this._getMainMenuView();
@@ -120,7 +140,7 @@ class SidebarProvider {
             this._sendMessage({
                 type: 'validationResult',
                 success: false,
-                message: `Invalid API key: Please give Valid API key`
+                message: `Invalid API key: Please Type Valid API key`
             });
         }
     }
@@ -173,9 +193,9 @@ class SidebarProvider {
 
     async _startReview(scope) {
         if (scope === 'workspace') {
-            vscode.commands.executeCommand('codelensx.reviewWorkspace');
+            vscode.commands.executeCommand('CodeLensX.reviewWorkspace');
         } else if (scope === 'file') {
-            vscode.commands.executeCommand('codelensx.reviewFile');
+            vscode.commands.executeCommand('CodeLensX.reviewFile');
         }
     }
 
@@ -199,7 +219,7 @@ class SidebarProvider {
                 summary: review.summary || ''
             };
             
-            vscode.commands.executeCommand('codelensx.showReport', results);
+            vscode.commands.executeCommand('CodeLensX.showReport', results);
         }
     }
 
@@ -231,6 +251,63 @@ class SidebarProvider {
         return apiKey.substring(0, 8) + '...' + apiKey.substring(apiKey.length - 4);
     }
 
+    async _updateProgress(progress) {
+        // Update progress data
+        this.progressData = {
+            ...this.progressData,
+            ...progress
+        };
+        
+        // If currently showing progress view, update it
+        if (this.currentView === 'progress') {
+            await this.updateView();
+        }
+    }
+
+    async _cancelReview() {
+
+        try{
+        const result = await vscode.window.showWarningMessage(
+        'Are you sure you want to cancel your review?',
+        {modal: true},
+        'Yes',
+        'NO')
+
+        if(result !== 'Yes') return;
+
+        vscode.commands.executeCommand('CodeLensX.cancelReview');
+        vscode.window.showInformationMessage('Review cancelled');
+        this.currentView = 'menu';
+        await this.updateView();
+        
+        }
+        catch(error){
+            vscode.window.showErrorMessage(`Failed to delete: ${error.message}`);
+        }
+    }
+
+    showProgress() {
+        // Reset progress data
+        this.progressData = {
+            percentage: 0,
+            currentFile: 'Initializing...',
+            filesProcessed: 0,
+            totalFiles: 0,
+            security: 0,
+            bugs: 0,
+            quality: 0,
+            status: 'Starting review...'
+        };
+        
+        this.currentView = 'progress';
+        this.updateView();
+    }
+
+    hideProgress() {
+        this.currentView = 'menu';
+        this.updateView();
+    }
+
     _sendMessage(message) {
         if (this._view) {
             this._view.webview.postMessage(message);
@@ -258,6 +335,9 @@ class SidebarProvider {
         return getSummaryView(history)
     }
 
+    async _getProgressView() {
+        return getProgressView(this.progressData);
+    }
    
     
 
