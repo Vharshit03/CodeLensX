@@ -1,65 +1,73 @@
-# codelens README
 
-This is the README for your extension "codelens". After writing up a brief description, we recommend including the following sections.
+CodeLensX
+Your AI coding assistant that reviews your code and helps you write better software.
+CodeLensX uses Google's AI to check your code for bugs, suggest improvements, and help you write cleaner code - all inside VS Code.
 
-## Features
+🎯 What Does It Do?
 
-Describe specific features of your extension including screenshots of your extension in action. Image paths are relative to this README file.
+Think of CodeLensX as your personal code reviewer that:
 
-For example if there is an image subfolder under your extension project workspace:
+Finds bugs before they become problems
+Suggests improvements to make your code faster and cleaner
+Explains issues in simple terms
+Saves your reports so you can track progress over time
 
-\!\[feature X\]\(images/feature-x.png\)
 
-> Tip: Many popular extensions utilize animations. This is an excellent way to show off your extension! We recommend short, focused animations that are easy to follow.
+✨ Key Features
+🤖 AI Code Review
+Get instant feedback on your code. The AI reads your code and points out:
 
-## Requirements
+Bugs and errors
+Security issues
+Ways to make it run faster
+Code that's hard to understand
 
-If you have any requirements or dependencies, add a section describing those and how to install and configure them.
+📊 Progress Bar
+Watch as your code gets analyzed in real-time. No more waiting and wondering!
+📝 Easy-to-Read Reports
+After reviewing your code, you'll see a clear report with:
 
-## Extension Settings
+What's wrong
+Why it matters
+How to fix it
 
-Include if your extension adds any VS Code settings through the `contributes.configuration` extension point.
+📚 Report History
+All your past reviews are saved. Come back anytime to see what you fixed and what still needs work.
+⚡ Smart Suggestions
+Get specific recommendations like:
 
-For example:
+"This loop can be simplified"
+"This function is doing too much"
+"Consider using this pattern instead"
 
-This extension contributes the following settings:
 
-* `myExtension.enable`: Enable/disable this extension.
-* `myExtension.thing`: Set to `blah` to do something.
+🚀 How to Use
+Step 1: Get Your API Key
 
-## Known Issues
+Go to Google AI Studio
+Sign in with your Google account
+Click "Create API Key"
+Copy the key
 
-Calling out known issues can help limit users opening duplicate issues against your extension.
+Step 2: Add Key to CodeLensX
 
-## Release Notes
+Open VS Code
+Paste your API key
+Click Save
 
-Users appreciate release notes as you update your extension.
+Step 3: Review Your Code
 
-### 1.0.0
+Open any code file
+Right-click anywhere in the code
+Select "CodeLensX: Review File"
+Wait a few seconds while AI analyzes it
+See your report!
 
-Initial release of ...
+Step 4: Check Past Reports
 
-### 1.0.1
+Type "CodeLensX: View Report History"
+Click on any past report to see it again
 
-Fixed issue #.
 
-### 1.1.0
-
-Added features X, Y, and Z.
-
----
-
-## Working with Markdown
-
-You can author your README using Visual Studio Code.  Here are some useful editor keyboard shortcuts:
-
-* Split the editor (`Cmd+\` on macOS or `Ctrl+\` on Windows and Linux)
-* Toggle preview (`Shift+Cmd+V` on macOS or `Shift+Ctrl+V` on Windows and Linux)
-* Press `Ctrl+Space` (Windows, Linux, macOS) to see a list of Markdown snippets
-
-## For more information
-
-* [Visual Studio Code's Markdown Support](http://code.visualstudio.com/docs/languages/markdown)
-* [Markdown Syntax Reference](https://help.github.com/articles/markdown-basics/)
-
-**Enjoy!**
+ Contact
+GitHub: github.com/Vharshit03/CodeLensX

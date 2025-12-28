@@ -3,6 +3,12 @@
   "displayName": "CodeLensX",
   "description": "AI-powered code review and optimization",
   "version": "0.0.1",
+  "icon": "images/icon3.png",
+  "publisher": "Harshitvas1004",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Vharshit03/CodeLensX"
+  },
   "engines": {
     "vscode": "^1.107.0"
   },
